@@ -2,4 +2,6 @@
 
 # azure-image-packer
 
+![Azure Packer Architecture](media/azure-packer.png)
+
 Documentation to come...

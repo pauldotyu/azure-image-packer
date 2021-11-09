@@ -19,9 +19,12 @@ resource "random_pet" "packer" {
 
 resource "azurerm_resource_group" "packer" {
   name     = "rg-${random_pet.packer.id}"
-  location = "westus2"
+  location = var.location
 }
 
+###########################################
+# AZURE COMPUTE GALLERY
+###########################################
 resource "azurerm_shared_image_gallery" "packer" {
   name                = "sig${random_pet.packer.id}"
   resource_group_name = azurerm_resource_group.packer.name
@@ -29,6 +32,10 @@ resource "azurerm_shared_image_gallery" "packer" {
   description         = "Shared images and things."
 }
 
+
+###########################################
+# AZURE IMAGE DEFINITIONS
+###########################################
 resource "azurerm_shared_image" "packer" {
   for_each            = { for img in var.images : img.name => img }
   name                = each.value["name"]
@@ -45,6 +52,10 @@ resource "azurerm_shared_image" "packer" {
   }
 }
 
+
+###########################################
+# AZURE PIPELINE AGENT
+###########################################
 resource "azurerm_virtual_network" "packer" {
   name                = "vn-${random_pet.packer.id}"
   address_space       = var.vnet_address_prefixes
@@ -56,8 +67,7 @@ resource "azurerm_subnet" "aci" {
   name                 = "sn-aci-${random_pet.packer.id}"
   resource_group_name  = azurerm_resource_group.packer.name
   virtual_network_name = azurerm_virtual_network.packer.name
-
-  address_prefixes = var.snet_address_prefixes
+  address_prefixes     = var.snet_aci_address_prefixes
 
   service_endpoints = [
     "Microsoft.Storage",
@@ -158,6 +168,7 @@ resource "azurerm_container_group" "packer" {
   ip_address_type     = "Private"
   network_profile_id  = azurerm_network_profile.aci.id
 
+  # Can't enable this if assigning a network_profile_id
   # identity {
   #   type = "SystemAssigned"
   # }
@@ -192,5 +203,46 @@ resource "azurerm_container_group" "packer" {
 
   depends_on = [
     null_resource.acr_build
+  ]
+}
+
+###########################################
+# HASHICORP PACKER
+###########################################
+resource "azurerm_user_assigned_identity" "packer" {
+  resource_group_name = azurerm_resource_group.packer.name
+  location            = azurerm_resource_group.packer.location
+
+  name = "mi-packer"
+}
+
+resource "azurerm_storage_account" "packer" {
+  name                     = "sa${random_pet.packer.id}packer4"
+  resource_group_name      = azurerm_resource_group.packer.name
+  location                 = azurerm_resource_group.packer.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "example" {
+  name                  = "installs"
+  storage_account_name  = azurerm_storage_account.packer.name
+  container_access_type = "private"
+}
+
+resource "azurerm_role_assignment" "packer_mi" {
+  scope                = azurerm_storage_account.packer.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = azurerm_user_assigned_identity.packer.principal_id
+}
+
+resource "azurerm_subnet" "packer" {
+  name                 = "sn-packer"
+  resource_group_name  = azurerm_resource_group.packer.name
+  virtual_network_name = azurerm_virtual_network.packer.name
+  address_prefixes     = var.snet_pkr_address_prefixes
+
+  service_endpoints = [
+    "Microsoft.Storage",
   ]
 }

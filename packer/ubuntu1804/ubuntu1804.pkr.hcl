@@ -28,6 +28,8 @@ source "azure-arm" "cheesehead" {
   temp_resource_group_name          = var.temp_resource_group_name
   async_resourcegroup_delete        = true
 
+  #allowed_inbound_ip_addresses = ["99.33.64.127"]
+
   shared_image_gallery_destination {
     subscription         = var.subscription_id
     resource_group       = var.sig_resource_group

@@ -2,11 +2,11 @@
 trigger:
   branches:
     include:
-    - main
+      - main
   paths:
     include:
-    - packer/windows11/*
-    - windows11-azure-pipline.yml
+      - packer/windows11/*
+      - pipelines/windows11-azure-pipline.yml
 
 name: $(Date:yyyyMMdd)$(Rev:.r)
 
@@ -47,7 +47,6 @@ steps:
         -var="client_id=$(client-id)" \
         -var="client_secret=$(client-secret)" \
         -var="sig_image_version=$(MyBuildNumber)" \
-        -var="temp_resource_group_name=packer_$(Build.BuildNumber)" \
         .
     displayName: "Validate Packer"
     workingDirectory: packer/windows11
@@ -59,38 +58,7 @@ steps:
         -var="client_id=$(client-id)" \
         -var="client_secret=$(client-secret)" \
         -var="sig_image_version=$(MyBuildNumber)" \
-        -var="temp_resource_group_name=packer_$(Build.BuildNumber)" \
         -force \
         .
     displayName: "Build Windows 11"
     workingDirectory: packer/windows11
-
-  # - task: PackerBuild@1
-  #   displayName: "Build using Packer"
-  #   inputs:
-  #     templateType: "builtin"
-  #     ConnectedServiceName: "terraform"
-  #     isManagedImage: true
-  #     managedImageName: "gopackers"
-  #     location: "westus2"
-  #     storageAccountName: "satfstate98722"
-  #     azureResourceGroup: "rg-devops"
-  #     baseImageSource: "default"
-  #     baseImage: "MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:windows"
-  #     packagePath: "$(System.DefaultWorkingDirectory)/customizers"
-  #     deployScriptPath: "hello.ps1"
-  #     additionalBuilderParameters: '{"vm_size":"Standard_D8s_v4"}'
-
-  # - task: PackerBuild@1
-  #   displayName: "Build using Packer"
-  #   inputs:
-  #     ConnectedServiceName: "terraform"
-  #     packerVersion: '1.7.7'
-  #     customTemplateLocation: '$(System.DefaultWorkingDirectory)/packer'
-  #     templateType: 'custom'
-  #     location: "westus2"
-  #     storageAccountName: "satfstate98722"
-  #     azureResourceGroup: "rg-devops"
-  #     packagePath: "$(System.DefaultWorkingDirectory)/packer/customizers"
-  #     deployScriptPath: "hello.ps1"
-  #     additionalBuilderParameters: '{"vm_size":"Standard_D8s_v4"}'

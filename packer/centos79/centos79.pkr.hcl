@@ -27,6 +27,8 @@ source "azure-arm" "cheesehead" {
   ssh_password                      = var.ssh_pass
   ssh_pty                           = true
 
+  #allowed_inbound_ip_addresses = ["x.x.x.x"]
+
   shared_image_gallery_destination {
     subscription         = var.subscription_id
     resource_group       = var.sig_resource_group

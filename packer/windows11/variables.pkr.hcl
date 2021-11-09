@@ -14,10 +14,6 @@ variable "client_secret" {
   type = string
 }
 
-variable "location" {
-  type = string
-}
-
 variable "os_type" {
   type = string
 }
@@ -54,6 +50,26 @@ variable "sig_image_version" {
   type = string
 }
 
-variable "temp_resource_group_name" {
+variable "sig_image_replication_regions" {
+  type = list(string)
+}
+
+variable "user_assigned_managed_identities" {
+  type = list(string)
+}
+
+variable "build_resource_group_name" {
+  type = string
+}
+
+variable "virtual_network_name" {
+  type = string
+}
+
+variable "virtual_network_subnet_name" {
+  type = string
+}
+
+variable "virtual_network_resource_group_name" {
   type = string
 }

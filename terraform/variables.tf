@@ -6,7 +6,11 @@ variable "vnet_address_prefixes" {
   type = list(string)
 }
 
-variable "snet_address_prefixes" {
+variable "snet_aci_address_prefixes" {
+  type = list(string)
+}
+
+variable "snet_pkr_address_prefixes" {
   type = list(string)
 }
 
@@ -29,20 +33,20 @@ variable "images" {
       sku                = "Windows11-M365"
     },
     {
-      name               = "ubuntu18-hpc"
+      name               = "ubuntu1804-hpc"
       os_type            = "Linux"
       hyper_v_generation = "V1"
       publisher          = "Contoso"
       offer              = "HPC"
-      sku                = "Ubuntu18_04-HPC"
+      sku                = "Ubuntu1804-HPC"
     },
     {
-      name               = "centos7_9-hpc"
+      name               = "centos79-hpc"
       os_type            = "Linux"
       hyper_v_generation = "V1"
       publisher          = "Contoso"
       offer              = "HPC"
-      sku                = "CentOS7_9-HPC"
+      sku                = "Centos79-HPC"
     }
   ]
 }

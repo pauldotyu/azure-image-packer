@@ -2,11 +2,11 @@
 trigger:
   branches:
     include:
-    - main
+      - main
   paths:
     include:
-    - packer/centos79/*
-    - centos79-azure-pipline.yml
+      - packer/centos79/*
+      - pipelines/centos79-azure-pipline.yml
 
 name: $(Date:yyyyMMdd)$(Rev:.r)
 

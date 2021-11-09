@@ -8,25 +8,32 @@ packer {
 }
 
 source "azure-arm" "cheesehead" {
-  tenant_id                         = var.tenant_id
-  subscription_id                   = var.subscription_id
-  client_id                         = var.client_id
-  client_secret                     = var.client_secret
-  location                          = var.location
-  os_type                           = var.os_type
-  image_publisher                   = var.image_publisher
-  image_offer                       = var.image_offer
-  image_sku                         = var.image_sku
-  vm_size                           = var.vm_size
-  temp_resource_group_name          = var.temp_resource_group_name
-  managed_image_name                = var.sig_image_name
-  managed_image_resource_group_name = var.sig_resource_group
-  async_resourcegroup_delete        = true
-  communicator                      = "winrm"
-  winrm_insecure                    = "true"
-  winrm_timeout                     = "15m"
-  winrm_use_ssl                     = "true"
-  winrm_username                    = "packer"
+  azure_tags = {
+    repo    = "pauldotyu/azure-image-packer"
+  }
+
+  tenant_id                           = var.tenant_id
+  subscription_id                     = var.subscription_id
+  client_id                           = var.client_id
+  client_secret                       = var.client_secret
+  os_type                             = var.os_type
+  image_publisher                     = var.image_publisher
+  image_offer                         = var.image_offer
+  image_sku                           = var.image_sku
+  vm_size                             = var.vm_size
+  managed_image_resource_group_name   = var.build_resource_group_name
+  managed_image_name                  = var.sig_image_name
+  build_resource_group_name           = var.build_resource_group_name
+  virtual_network_name                = var.virtual_network_name
+  virtual_network_subnet_name         = var.virtual_network_subnet_name
+  virtual_network_resource_group_name = var.virtual_network_resource_group_name
+  user_assigned_managed_identities    = var.user_assigned_managed_identities
+  custom_resource_build_prefix        = "pkrwin11" # Windows is a reserved word
+  communicator                        = "winrm"
+  winrm_insecure                      = "true"
+  winrm_timeout                       = "15m"
+  winrm_use_ssl                       = "true"
+  winrm_username                      = "packer"
 
   shared_image_gallery_destination {
     subscription         = var.subscription_id
@@ -34,13 +41,37 @@ source "azure-arm" "cheesehead" {
     gallery_name         = var.sig_name
     image_name           = var.sig_image_name
     image_version        = var.sig_image_version
-    replication_regions  = [var.location]
+    replication_regions  = var.sig_image_replication_regions
     storage_account_type = "Standard_LRS"
   }
 }
 
 build {
   sources = ["source.azure-arm.cheesehead"]
+
+  provisioner "powershell" {
+    scripts = [
+      "customizers/say-hello.ps1",
+    ]
+  }
+
+  # provisioner "powershell" {
+  #   script = "customizers/install-from-blob.ps1"
+  #   environment_vars = [
+  #     "STORAGEACCOUNTNAME=sacheeseheadpacker4",
+  #     "CONTAINERNAME=installs",
+  #     "BLOBNAME=Git-2.33.1-64-bit.exe",
+  #   ]
+  # }
+
+  # provisioner "powershell" {
+  #   script = "customizers/install-from-blob.ps1"
+  #   environment_vars = [
+  #     "STORAGEACCOUNTNAME=sacheeseheadpacker4",
+  #     "CONTAINERNAME=installs",
+  #     "BLOBNAME=VScode.exe",
+  #   ]
+  # }
 
   provisioner "powershell" {
     inline = [
